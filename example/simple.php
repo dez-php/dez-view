@@ -24,10 +24,9 @@ try {
 
     $view->registerEngine( '.php', new \Dez\View\Engine\Php( $view ) );
 
+    $view->render( 'users.php' );
 
-    die(var_dump($view->fetch( 'users.php' ), $view));
-
-    die(var_dump( $view ));
+    echo $view;
 
 } catch ( \Exception $e ) {
     header('content-type: text/plain');

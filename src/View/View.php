@@ -13,40 +13,11 @@
 
         protected $data             = [];
 
-        protected $sections         = [];
-
         protected $viewDirectory    = '';
 
-        public function get( $name ) {
-            return isset( $this->data[ $name ] ) ? $this->data[ $name ] : null;
-        }
+        protected $content          = null;
 
-        public function set( $name ) {
-            return isset( $this->data[ $name ] ) ? $this->data[ $name ] : null;
-        }
-
-        public function start( $name ) {
-
-            if( $name === 'content' ) {
-                throw new Exception( 'Section name content is reserved' );
-            }
-
-            ob_start();
-            $this->sections[ $name ]    = '';
-            return $this;
-        }
-
-        public function stop() {
-
-            end( $this->sections );
-
-            $this->sections[ key( $this->sections ) ]   = ob_get_clean();
-
-            return $this;
-
-        }
-
-        public function fetch( $name, array $data = [] ) {
+        public function render( $name, array $data = [] ) {
 
             $engines    = $this->getLoadedEngines();
             $ext        = $this->extractExtention( $name );
@@ -55,14 +26,12 @@
                 throw new Exception( "Template engine for extension '$ext' not registered" );
             }
 
+            /** @var $engine EngineInterface */
             $engine     = $engines[ $ext ];
 
-            return $engine->render( $name );
+            $engine->render( $name );
 
-        }
-
-        public function render( $name, array $data = [] ) {
-
+            return $this;
         }
 
         public function registerEngine( $fileExtension, $engine = null ) {
@@ -101,11 +70,13 @@
 
         }
 
-        /**
-         * @return array
-         */
-        public function getSections() {
-            return $this->sections;
+        public function get( $name ) {
+            return isset( $this->data[ $name ] ) ? $this->data[ $name ] : null;
+        }
+
+        public function set( $name, $value = '' ) {
+            $this->data[ $name ]    = $value;
+            return $this;
         }
 
         /**
@@ -139,16 +110,30 @@
         }
 
         /**
+         * @return string
+         */
+        public function getContent() {
+            return $this->content;
+        }
+
+        /**
+         * @param null $content
+         * @return static
+         */
+        public function setContent( $content ) {
+            $this->content = $content;
+            return $this;
+        }
+
+        /**
          * @param string $viewDirectory
          * @return static
          * @throws Exception
          */
         public function setViewDirectory( $viewDirectory ) {
-
             if( ! file_exists( $viewDirectory ) || ! is_dir( $viewDirectory ) ) {
                 throw new Exception( 'View dir is not exists '. $viewDirectory );
             }
-
             $this->viewDirectory = $viewDirectory;
             return $this;
         }
@@ -156,6 +141,10 @@
         protected function extractExtention( $name ) {
             list( $ext )    = array_reverse( explode( '.', $name ) );
             return ".$ext";
+        }
+
+        public function __toString() {
+            return $this->getContent();
         }
 
     }

@@ -6,9 +6,13 @@
 </head>
 <body>
 
+<?=$this->section('header')?>
+
     <div class="content">
 
+        <?=$this->section('left-side')?>
 
+        <?=$this->section('content')?>
 
     </div>
 
