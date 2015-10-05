@@ -3,6 +3,7 @@
     namespace Dez\View\Engine;
 
     use Dez\View\Engine;
+    use Dez\View\EngineInterface;
     use Dez\View\Exception;
 
     class Php extends Engine {
@@ -15,6 +16,12 @@
             $this->setRendered( true );
 
             $file = $this->getView()->getViewDirectory() . '/' . $name;
+
+            if( ( $content = $this->getView()->getContent() ) !== '' ) {
+                $this->setSection( 'content', function( EngineInterface $engine ) use ( $content ) {
+                    return $content;
+                } );
+            }
 
             ob_start();
                 extract( $this->data );

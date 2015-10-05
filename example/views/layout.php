@@ -10,11 +10,17 @@
 
     <div class="content">
 
-        <?=$this->section('left-side')?>
+    	<?php if($this->isSection('left-sidebar')): ?>
+        	<?=$this->section('left-sidebar')?>
+    	<?php else: ?>
+    		<i>default left side</i>
+    	<?php endif; ?>
 
         <?=$this->section('content')?>
 
     </div>
+
+    <?=$this->section('footer')?>
 
 </body>
 </html>

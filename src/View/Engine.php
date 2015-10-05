@@ -19,6 +19,10 @@
             $this->addData( $data );
         }
 
+        /**
+         * @param array $data
+         * @return $this
+         */
         public function addData( array $data = [] ) {
             if( count( $data ) > 0 ) {
                 $this->data = array_merge($this->data, $data);
@@ -33,6 +37,31 @@
          */
         public function get( $name, $default = null ) {
             return isset( $this->data[ $name ] ) ? $this->data[ $name ] : $default;
+        }
+
+        /**
+         * @param $name
+         * @param $source
+         * @return $this
+         * @throws Exception
+         */
+        public function setSection( $name, $source ) {
+            if( $source instanceof \Closure ) {
+                $this->sections[ $name ]    = call_user_func_array( $source, [ $this ] );
+            } else if( is_string( $source ) ) {
+                $this->sections[ $name ]    = $source;
+            } else {
+                throw new Exception( 'Bad section source' );
+            }
+            return $this;
+        }
+
+        /**
+         * @param $name
+         * @return bool
+         */
+        public function isSection( $name ) {
+            return isset( $this->sections[ $name ] );
         }
 
         /**

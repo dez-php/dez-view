@@ -12,17 +12,20 @@ $di->set( 'eventDispatcher', function() {
 } );
 
 $di->set( 'view', function() {
-    return new \Dez\View\View();
+    $view   = new \Dez\View\View();
+    $view->setViewDirectory( __DIR__ . '/views' );
+    $view->registerEngine( '.php', function() use ( $view ) {
+        return new \Dez\View\Engine\Php( $view );
+    } );
+    return $view;
 } );
 
 /** @var $view \Dez\View\View */
 $view   = $di->get('view');
 
+$view->setContent( __FILE__ );
+
 try {
-
-    $view->setViewDirectory( __DIR__ . '/views' );
-
-    $view->registerEngine( '.php', new \Dez\View\Engine\Php( $view ) );
 
     $view->render( 'users.php' );
 

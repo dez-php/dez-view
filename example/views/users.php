@@ -1,4 +1,10 @@
 <?php $this->layout('layout.php'); ?>
+
+<?php $this->start('footer'); ?>
+<hr><hr>
+<div style="background: #ccc; padding: 20px 30px;"><i>dev-view 2015 =)</i></div>
+<?php $this->stop(); ?>
+
 <?php $this->start('header'); ?>
 <header>
     <h2>Site name</h2>
@@ -27,3 +33,11 @@
 <h1>
     users
 </h1>
+
+<h3>
+    inner content
+</h3>
+<hr>
+<div>
+    <?=$this->section('content')?>
+</div>
