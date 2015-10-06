@@ -4,15 +4,19 @@
 
     abstract class Engine implements EngineInterface {
 
-        protected $rendered     = false;
+        protected $rendered             = false;
 
-        protected $view         = null;
+        protected $view                 = null;
 
-        protected $layout       = 'layout';
+        protected $layout               = 'layout';
 
-        protected $data         = [];
+        protected $middlewareLayouts    = [];
 
-        protected $sections     = [];
+        protected $data                 = [];
+
+        protected $sections             = [];
+
+        static protected $openedSections    = [];
 
         public function __construct( ViewInterface $view, array $data = [] ) {
             $this->setView( $view );
@@ -46,10 +50,13 @@
          * @throws Exception
          */
         public function setSection( $name, $source ) {
-            if( $source instanceof \Closure ) {
-                $this->sections[ $name ]    = call_user_func_array( $source, [ $this ] );
-            } else if( is_string( $source ) ) {
-                $this->sections[ $name ]    = $source;
+            if( $source instanceof \Closure || is_string( $source ) ) {
+                if( ! is_string( $source ) ) {
+                    $this->sections[ $name ]    = call_user_func_array( $source, [ $this ] );
+                } else {
+                    $this->sections[ $name ]    = $source;
+                }
+                static::$openedSections[]   = $name;
             } else {
                 throw new Exception( 'Bad section source' );
             }
@@ -82,8 +89,9 @@
          * @return $this
          */
         public function start( $name ) {
-            if( ! isset( $this->sections[$name] ) ) {
-                $this->sections[$name]  = '';
+            static::$openedSections[]   = $name;
+            if( ! isset( $this->sections[ $name ] ) ) {
+                $this->sections[ $name ]    = '';
             }
             ob_start();
             return $this;
@@ -93,8 +101,7 @@
          * @return $this
          */
         public function stop() {
-            end( $this->sections );
-            $this->sections[ key( $this->sections ) ]   = ob_get_clean();
+            $this->sections[ array_pop( static::$openedSections ) ]   = ob_get_clean();
             return $this;
         }
 
@@ -102,8 +109,7 @@
          * @return $this
          */
         public function append() {
-            end( $this->sections );
-            $this->sections[ key( $this->sections ) ]   .= ob_get_clean();
+            $this->sections[ array_pop( static::$openedSections ) ]   .= ob_get_clean();
             return $this;
         }
 
@@ -111,8 +117,8 @@
          * @return $this
          */
         public function prepend() {
-            end( $this->sections );
-            $this->sections[ key( $this->sections ) ]   = ob_get_clean() . $this->sections[ key( $this->sections ) ];
+            $key    = array_pop( static::$openedSections );
+            $this->sections[ $key ]   = ob_get_clean() . $this->sections[ $key ];
             return $this;
         }
 

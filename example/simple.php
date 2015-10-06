@@ -23,11 +23,12 @@ $di->set( 'view', function() {
 /** @var $view \Dez\View\View */
 $view   = $di->get('view');
 
-$view->setContent( __FILE__ );
+$view->setContent( '<h1>Content from '. __FILE__ .'</h1>' );
 
 try {
 
     $view->render( 'users.php' );
+
 
     echo $view;
 

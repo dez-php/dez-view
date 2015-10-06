@@ -23,10 +23,10 @@
                 } );
             }
 
-            ob_start();
+            $this->start( 'content' );
                 extract( $this->data );
                 require $file;
-            $this->sections['content']  = ob_get_clean();
+            $this->stop();
 
             $layoutFile = $this->getView()->getViewDirectory() . '/' . $this->layout;
 

@@ -1,14 +1,12 @@
 <?php $this->layout('layout.php'); ?>
 
 <?php $this->start('footer'); ?>
-<hr><hr>
 <div style="background: #ccc; padding: 20px 30px;"><i>dev-view 2015 =)</i></div>
 <?php $this->stop(); ?>
 
 <?php $this->start('header'); ?>
 <header>
-    <h2>Site name</h2>
-    <h3>Slogan</h3>
+    <h1>Header</h1>
 </header>
 <?php $this->stop(); ?>
 
@@ -30,12 +28,27 @@
 </div>
 <?php $this->prepend(); ?>
 
+<?php $this->start('test'); ?>
+
+<h4>test</h4>
+
+<?php $this->start('test-inner'); ?>
+<i><h5>inner test</h5></i>
+<?php $this->stop(); ?>
+
+<?=$this->section('footer')?>
+<br>---------<br>
+<?=$this->section('test-inner')?>
+
+
+
+<?php $this->stop(); ?>
+
 <h1>
     users
 </h1>
-
 <h3>
-    inner content
+    content users.php
 </h3>
 <hr>
 <div>

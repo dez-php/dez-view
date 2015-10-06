@@ -4,23 +4,41 @@
     <meta charset="UTF-8">
     <title>Dez View Component Test</title>
 </head>
-<body>
+<body style="border: 1px solid blue; padding: 30px;">
 
-<?=$this->section('header')?>
+    layout.php
+
+    <div style="border: 1px solid red; padding: 30px; margin-bottom: 20px">
+        header section
+        <?=$this->section('header')?>
+    </div>
 
     <div class="content">
 
-    	<?php if($this->isSection('left-sidebar')): ?>
-        	<?=$this->section('left-sidebar')?>
-    	<?php else: ?>
-    		<i>default left side</i>
-    	<?php endif; ?>
+    	<div style="border: 1px solid dodgerblue; padding: 30px; margin-bottom: 20px">
+            left-sidebar section
+            <?php if($this->isSection('left-sidebar')): ?>
+                <?=$this->section('left-sidebar')?>
+            <?php else: ?>
+                <i>default left side</i>
+            <?php endif; ?>
+        </div>
 
-        <?=$this->section('content')?>
+        <div style="border: 1px solid green; padding: 30px; margin-bottom: 20px">
+            content section
+            <?=$this->section('content')?>
+        </div>
 
     </div>
 
-    <?=$this->section('footer')?>
+    <div style="border: 1px solid coral; padding: 30px; margin-bottom: 20px">
+        test section
+        <?=$this->section('test')?>
+    </div>
+
+    <div>
+        <?=$this->section('footer')?>
+    </div>
 
 </body>
 </html>
