@@ -10,13 +10,6 @@
 
         /**
          * @param $name string
-         * @param $default string
-         * @return string
-         */
-        public function get( $name, $default );
-
-        /**
-         * @param $name string
          * @return $this
          */
         public function start( $name );

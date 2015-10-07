@@ -12,29 +12,8 @@
 
         static protected $openedSections    = [];
 
-        public function __construct( ViewInterface $view, array $data = [] ) {
+        public function __construct( ViewInterface $view ) {
             $this->setView( $view );
-            $this->setData( $data );
-        }
-
-        /**
-         * @param array $data
-         * @return $this
-         */
-        public function setData( array $data = [] ) {
-            if( count( $data ) > 0 ) {
-                $this->data = array_merge($this->data, $data);
-            }
-            return $this;
-        }
-
-        /**
-         * @param $name string
-         * @param $default string
-         * @return string
-         */
-        public function get( $name, $default = null ) {
-            return isset( $this->data[ $name ] ) ? $this->data[ $name ] : $default;
         }
 
         /**

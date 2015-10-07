@@ -3,48 +3,92 @@
     namespace Dez\View;
 
     use Dez\DependencyInjection\Injectable;
-    use Dez\EventDispatcher\Exception;
 
+    /**
+     * Class View
+     * @package Dez\View
+     */
     class View extends Injectable implements ViewInterface {
 
+        /**
+         * @var bool
+         */
         protected $rendered         = false;
 
+        /**
+         * @var array
+         */
         protected $engines          = [];
 
+        /**
+         * @var bool
+         */
         protected $loadedEngines    = false;
 
+        /**
+         * @var array
+         */
         protected $data             = [];
 
+        /**
+         * @var string
+         */
         protected $viewDirectory    = '';
 
+        /**
+         * @var array
+         */
         protected $layouts          = [];
 
+        /**
+         * @var string
+         */
         protected $layout           = 'layout.php';
 
+        /**
+         * @var null
+         */
         protected $content          = null;
 
+        /**
+         * @param $path
+         * @return $this
+         * @throws \Exception
+         */
         public function render( $path ) {
-            if( $this->isRendered() ) {
+
+            try {
+
+                if( $this->isRendered() ) {
+                    ob_clean();
+                    throw new Exception( 'Render can be called only once' );
+                }
+
+                $this->handleTemplate( $path );
+
+                $layouts    = $this->getLayouts();
+                if( count( $layouts ) > 0 ) while( $layout = array_pop( $layouts ) ) {
+                    $this->handleTemplate( $layout );
+                } unset( $layout, $layouts );
+
+                $this->handleTemplate( $this->getMainLayout() );
+            } catch ( \Exception $e ) {
                 ob_clean();
-                throw new Exception( 'Render can be called only once' );
+                throw $e;
             }
-
-            $this->handleTemplate( $path );
-
-            $layouts    = $this->getLayouts();
-            if( count( $layouts ) > 0 ) while( $layout = array_pop( $layouts ) ) {
-                $this->handleTemplate( $layout );
-            } unset( $layout, $layouts );
-
-            $this->handleTemplate( $this->getMainLayout() );
 
             $this->setRendered( true );
             return $this;
         }
 
+        /**
+         * @param $path
+         * @return $this
+         * @throws Exception
+         * @throws \Dez\View\Exception
+         */
         protected function handleTemplate( $path ) {
             if( $this->exists( $path ) ) {
-                var_dump($path);
                 $engine = $this->getEngine( $this->extractExtension( $path ) );
                 $engine->setSection( 'content', $this->getContent() );
                 $this->setContent( $engine->fetch( $path ) );
@@ -52,16 +96,29 @@
             return $this;
         }
 
+        /**
+         * @param $path
+         * @return bool
+         */
         public function exists( $path ) {
             return file_exists( $this->buildPath( $path ) );
         }
 
+        /**
+         * @param $fileExtension
+         * @param null $engine
+         * @return $this
+         */
         public function registerEngine( $fileExtension, $engine = null ) {
             $this->engines[ $fileExtension ]   = $engine;
             $this->setLoadedEngines( false );
             return $this;
         }
 
+        /**
+         * @param array $engines
+         * @return $this
+         */
         public function registerEngines( array $engines ) {
             foreach( $engines as $fileExtension => $engine ) {
                 $this->registerEngine( $fileExtension, $engine );
@@ -85,20 +142,24 @@
             return $engines[ $extension ];
         }
 
+        /**
+         * @return array
+         * @throws Exception
+         */
         public function getLoadedEngines() {
 
             if( ! $this->isLoadedEngines() ) {
 
-                foreach( $this->engines as $ext => $engine ) {
+                foreach( $this->engines as $extension => $engine ) {
                     if( $engine instanceof \Closure ) {
-                        $this->engines[ $ext ]  = call_user_func_array( $engine, [ $this ] );
+                        $this->engines[ $extension ]  = call_user_func_array( $engine, [ $this ] );
                     } else if( is_object( $engine ) && $engine instanceof EngineInterface ) {
                         continue;
                     } else if( is_string( $engine ) && class_exists( $engine ) ) {
-                        $this->engines[ $ext ]  = new $engine( $this );
+                        $this->engines[ $extension ]  = new $engine( $this );
                     } else {
                         ob_clean();
-                        throw new Exception( 'Invalid template engine registered' );
+                        throw new Exception( 'Invalid template engine registered for extension '. $extension );
                     }
                 }
 
@@ -108,24 +169,43 @@
             return $this->engines;
         }
 
+        /**
+         * @param $name
+         * @return null
+         */
         public function get( $name ) {
             return isset( $this->data[ $name ] ) ? $this->data[ $name ] : null;
         }
 
+        /**
+         * @param $name
+         * @param string $value
+         * @return $this
+         */
         public function set( $name, $value = '' ) {
             $this->data[ $name ]    = $value;
             return $this;
         }
 
+        /**
+         * @param string $layoutPath
+         * @return $this
+         */
         public function addLayout( $layoutPath = '' ) {
             $this->layouts[]    = $layoutPath;
             return $this;
         }
 
+        /**
+         * @return array
+         */
         public function getLayouts() {
             return $this->layouts;
         }
 
+        /**
+         * @return bool
+         */
         public function hasLayouts() {
             return count( $this->layouts ) > 0;
         }
@@ -206,11 +286,19 @@
             return $this;
         }
 
+        /**
+         * @param $path
+         * @return bool|string
+         */
         public function buildPath( $path ) {
             $path   = "{$this->getViewDirectory()}/$path";
             return file_exists( $path ) ? $path : false;
         }
 
+        /**
+         * @param $name
+         * @return string
+         */
         public function extractExtension( $name ) {
             return '.' . array_reverse( explode( '.', array_reverse( explode( '/', $name ) )[0] ) )[0];
         }
@@ -231,6 +319,9 @@
             return $this;
         }
 
+        /**
+         * @return string
+         */
         public function __toString() {
             return $this->getContent();
         }

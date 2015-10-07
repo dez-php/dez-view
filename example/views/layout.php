@@ -40,5 +40,9 @@
         <?=$this->section('footer')?>
     </div>
 
+    <div>
+        <?=$this->section('test')?>
+    </div>
+
 </body>
 </html>
