@@ -7,6 +7,8 @@
 
     class View extends Injectable implements ViewInterface {
 
+        protected $rendered         = false;
+
         protected $engines          = [];
 
         protected $loadedEngines    = false;
@@ -15,23 +17,43 @@
 
         protected $viewDirectory    = '';
 
+        protected $layouts          = [];
+
+        protected $layout           = 'layout.php';
+
         protected $content          = null;
 
-        public function render( $name, array $data = [] ) {
-
-            $engines    = $this->getLoadedEngines();
-            $ext        = $this->extractExtention( $name );
-
-            if( ! isset( $engines[ $ext ] ) ) {
-                throw new Exception( "Template engine for extension '$ext' not registered" );
+        public function render( $path ) {
+            if( $this->isRendered() ) {
+                ob_clean();
+                throw new Exception( 'Render can be called only once' );
             }
 
-            /** @var $engine EngineInterface */
-            $engine     = $engines[ $ext ];
+            $this->handleTemplate( $path );
 
-            $engine->render( $name );
+            $layouts    = $this->getLayouts();
+            if( count( $layouts ) > 0 ) while( $layout = array_pop( $layouts ) ) {
+                $this->handleTemplate( $layout );
+            } unset( $layout, $layouts );
 
+            $this->handleTemplate( $this->getMainLayout() );
+
+            $this->setRendered( true );
             return $this;
+        }
+
+        protected function handleTemplate( $path ) {
+            if( $this->exists( $path ) ) {
+                var_dump($path);
+                $engine = $this->getEngine( $this->extractExtension( $path ) );
+                $engine->setSection( 'content', $this->getContent() );
+                $this->setContent( $engine->fetch( $path ) );
+            }
+            return $this;
+        }
+
+        public function exists( $path ) {
+            return file_exists( $this->buildPath( $path ) );
         }
 
         public function registerEngine( $fileExtension, $engine = null ) {
@@ -47,6 +69,22 @@
             return $this;
         }
 
+        /**
+         * @param $extension
+         * @return Engine
+         * @throws Exception
+         */
+        public function getEngine( $extension ) {
+            $engines    = $this->getLoadedEngines();
+
+            if( ! isset( $engines[ $extension ] ) ) {
+                ob_clean();
+                throw new Exception( "Template engine for extension '$extension' not registered" );
+            }
+
+            return $engines[ $extension ];
+        }
+
         public function getLoadedEngines() {
 
             if( ! $this->isLoadedEngines() ) {
@@ -59,6 +97,7 @@
                     } else if( is_string( $engine ) && class_exists( $engine ) ) {
                         $this->engines[ $ext ]  = new $engine( $this );
                     } else {
+                        ob_clean();
                         throw new Exception( 'Invalid template engine registered' );
                     }
                 }
@@ -67,7 +106,6 @@
             }
 
             return $this->engines;
-
         }
 
         public function get( $name ) {
@@ -76,6 +114,35 @@
 
         public function set( $name, $value = '' ) {
             $this->data[ $name ]    = $value;
+            return $this;
+        }
+
+        public function addLayout( $layoutPath = '' ) {
+            $this->layouts[]    = $layoutPath;
+            return $this;
+        }
+
+        public function getLayouts() {
+            return $this->layouts;
+        }
+
+        public function hasLayouts() {
+            return count( $this->layouts ) > 0;
+        }
+
+        /**
+         * @return string
+         */
+        public function getMainLayout() {
+            return $this->layout;
+        }
+
+        /**
+         * @param string $layoutPath
+         * @return static
+         */
+        public function setMainLayout( $layoutPath = 'index.php' ) {
+            $this->layout = $layoutPath;
             return $this;
         }
 
@@ -132,15 +199,36 @@
          */
         public function setViewDirectory( $viewDirectory ) {
             if( ! file_exists( $viewDirectory ) || ! is_dir( $viewDirectory ) ) {
+                ob_clean();
                 throw new Exception( 'View dir is not exists '. $viewDirectory );
             }
             $this->viewDirectory = $viewDirectory;
             return $this;
         }
 
-        protected function extractExtention( $name ) {
-            list( $ext )    = array_reverse( explode( '.', $name ) );
-            return ".$ext";
+        public function buildPath( $path ) {
+            $path   = "{$this->getViewDirectory()}/$path";
+            return file_exists( $path ) ? $path : false;
+        }
+
+        public function extractExtension( $name ) {
+            return '.' . array_reverse( explode( '.', array_reverse( explode( '/', $name ) )[0] ) )[0];
+        }
+
+        /**
+         * @return boolean
+         */
+        public function isRendered() {
+            return $this->rendered;
+        }
+
+        /**
+         * @param boolean $rendered
+         * @return static
+         */
+        public function setRendered( $rendered ) {
+            $this->rendered = $rendered;
+            return $this;
         }
 
         public function __toString() {

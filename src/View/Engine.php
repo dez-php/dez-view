@@ -4,13 +4,7 @@
 
     abstract class Engine implements EngineInterface {
 
-        protected $rendered             = false;
-
         protected $view                 = null;
-
-        protected $layout               = 'layout';
-
-        protected $middlewareLayouts    = [];
 
         protected $data                 = [];
 
@@ -20,14 +14,14 @@
 
         public function __construct( ViewInterface $view, array $data = [] ) {
             $this->setView( $view );
-            $this->addData( $data );
+            $this->setData( $data );
         }
 
         /**
          * @param array $data
          * @return $this
          */
-        public function addData( array $data = [] ) {
+        public function setData( array $data = [] ) {
             if( count( $data ) > 0 ) {
                 $this->data = array_merge($this->data, $data);
             }
@@ -123,15 +117,6 @@
         }
 
         /**
-         * @param $name string
-         * @return $this
-         */
-        public function layout( $name ) {
-            $this->layout   = $name;
-            return $this;
-        }
-
-        /**
          * @return View
          */
         public function getView() {
@@ -147,20 +132,8 @@
             return $this;
         }
 
-        /**
-         * @return boolean
-         */
-        public function isRendered() {
-            return $this->rendered;
-        }
-
-        /**
-         * @param boolean $rendered
-         * @return static
-         */
-        public function setRendered( $rendered ) {
-            $this->rendered = $rendered;
-            return $this;
+        public function layout( $name = '' ) {
+            $this->getView()->setMainLayout( $name );
         }
 
     }

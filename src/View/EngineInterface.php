@@ -45,7 +45,7 @@
         /**
          * @param $name string
          * @return $this
-        */
-        public function render( $name );
+         */
+        public function fetch( $name );
 
     }

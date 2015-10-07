@@ -4,6 +4,6 @@
 
     interface ViewInterface {
 
-        public function render( $templateName, array $data = [] );
+        public function render( $templateName );
 
     }
