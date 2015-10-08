@@ -1,4 +1,4 @@
-<div style="border: 2px solid red;  padding: 10px; margin: 10px;">
+<div style="border: 2px solid #<?=dechex(rand(0x888888, 0xffffff))?>;  padding: 10px; margin: 10px;">
     <pre><?=get_class( $this )?></pre>
     <?=$this->section('content')?>
 

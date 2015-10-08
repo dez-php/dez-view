@@ -83,6 +83,17 @@
 
         /**
          * @param $path
+         * @param array $data
+         * @return $this
+         * @throws Exception
+         */
+        public function fetch( $path, array $data = [] ) {
+            $engine = $this->getEngine( $this->extractExtension( $path ) );
+            return $engine->fetch( $path );
+        }
+
+        /**
+         * @param $path
          * @return $this
          * @throws Exception
          * @throws \Dez\View\Exception

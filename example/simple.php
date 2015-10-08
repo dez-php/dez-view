@@ -28,8 +28,8 @@ $di->set( 'view', function() {
 /** @var $view \Dez\View\View */
 $view   = $di->get('view');
 
-$view->addLayout( 'wrap.php' )->addLayout( 'wrap.tpl' )
-    ->addLayout( 'wrap.phtml' )->addLayout( 'wrap.php' )
+$view->addLayout( 'wrap.php' )->addLayout( 'wrap.php' )
+    ->addLayout( 'wrap.php' )->addLayout( 'wrap.php' )
     ->addLayout( 'wrap.php' );
 
 $view->setContent( '<h1>Content from '. __FILE__ .'</h1>' );

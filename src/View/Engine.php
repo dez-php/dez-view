@@ -2,16 +2,36 @@
 
     namespace Dez\View;
 
+    /**
+     * Class Engine
+     * @package Dez\View
+     */
     abstract class Engine implements EngineInterface {
 
+        /**
+         * @var null
+         */
         protected $view                 = null;
 
+        /**
+         * @var array
+         */
         protected $data                 = [];
 
+        /**
+         * @var array
+         */
         protected $sections             = [];
 
+        /**
+         * @var array
+         */
         static protected $openedSections    = [];
 
+        /**
+         * Engine constructor.
+         * @param ViewInterface $view
+         */
         public function __construct( ViewInterface $view ) {
             $this->setView( $view );
         }
@@ -111,8 +131,13 @@
             return $this;
         }
 
+        /**
+         * @param string $name
+         * @return $this
+         */
         public function layout( $name = '' ) {
             $this->getView()->setMainLayout( $name );
+            return $this;
         }
 
     }
