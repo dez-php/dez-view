@@ -101,7 +101,9 @@
         protected function handleTemplate( $path ) {
             if( $this->exists( $path ) ) {
                 $engine = $this->getEngine( $this->extractExtension( $path ) );
-                $engine->setSection( 'content', $this->getContent() );
+                if( $previousContent = $this->getContent() ) {
+                    $engine->setSection( 'content', $previousContent );
+                }
                 $this->setContent( $engine->fetch( $path ) );
             }
             return $this;
