@@ -78,7 +78,7 @@
             }
 
             $this->setRendered( true );
-            return $this;
+            return $this->getContent();
         }
 
         /**
