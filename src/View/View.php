@@ -55,7 +55,7 @@
          * @return $this
          * @throws \Exception
          */
-        public function render( $path ) {
+        public function render( $path = null ) {
 
             try {
 
@@ -105,6 +105,8 @@
                     $engine->setSection( 'content', $previousContent );
                 }
                 $this->setContent( $engine->fetch( $path ) );
+            } else {
+                $this->setContent( "<!-- [ template not found '{$path}' ] -->" );
             }
             return $this;
         }
@@ -313,7 +315,12 @@
          * @return string
          */
         public function extractExtension( $name ) {
-            return '.' . array_reverse( explode( '.', array_reverse( explode( '/', $name ) )[0] ) )[0];
+            if( strpos( $name, '.' ) !== false ) {
+                $extention      = array_reverse( explode( '.', array_reverse( explode( '/', $name ) )[0] ) )[0];
+            } else {
+                $extention      = 'php';
+            }
+            return ".{$extention}";
         }
 
         /**
