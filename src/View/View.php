@@ -104,10 +104,11 @@
                 if( $previousContent = $this->getContent() ) {
                     $engine->setSection( 'content', $previousContent );
                 }
-                $this->setContent( $engine->fetch( $path ) );
+                $content    = $engine->fetch( $path );
             } else {
-                $this->setContent( "<!-- [ template not found '{$path}' ] -->" );
+                $content    = $this->getContent();
             }
+            $this->setContent( "<!-- [ '{$path}' ] -->\n{$content}" );
             return $this;
         }
 
@@ -306,6 +307,9 @@
          * @return bool|string
          */
         public function buildPath( $path ) {
+            if( strpos( array_reverse( explode( '/', $path ) )[0], '.' ) === false ) {
+                $path   = $path . $this->extractExtension( $path );
+            }
             $path   = "{$this->getViewDirectory()}/$path";
             return file_exists( $path ) ? $path : false;
         }
