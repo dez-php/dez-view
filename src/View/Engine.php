@@ -38,6 +38,19 @@
 
         /**
          * @param $name
+         * @return mixed|null
+         */
+        public function __get($name)
+        {
+            if($this->getView()->getDi()->has($name)) {
+                return $this->getView()->getDi()->get($name);
+            }
+
+            return null;
+        }
+
+        /**
+         * @param $name
          * @param $source
          * @return $this
          * @throws Exception
